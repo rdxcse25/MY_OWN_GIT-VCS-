@@ -5,7 +5,7 @@ const GitClient = require("./git/client.js");
 const gitClient = new GitClient();
 
 //commands
-const { CatFileCommand } = require("./git/command");
+const { CatFileCommand, HashObjectCommand } = require("./git/command");
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 
@@ -18,6 +18,9 @@ switch (command) {
         break;
     case "cat-file":
         handleCatFileCommand(command);
+        break;
+    case "hash-object":
+        handleHashObjectCommand();
         break;
 
     default:
@@ -38,4 +41,15 @@ function handleCatFileCommand(command) {
     const commitSHA = process.argv[4];
     const commandCatFile = new CatFileCommand(flag, commitSHA);
     gitClient.run(commandCatFile);
+}
+
+function handleHashObjectCommand(command) {
+    let flag = process.argv[3];
+    let filePath = process.argv[4];
+    if (!filePath) {
+        filePath = flag;
+        flag = null;
+    }
+    const commandHashObject = new HashObjectCommand(flag, filePath);
+    gitClient.run(commandHashObject);
 }
