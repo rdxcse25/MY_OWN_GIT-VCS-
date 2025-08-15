@@ -31,5 +31,5 @@ class HashObjectCommand{
         process.stdout.write(hash);
     }
 }
-
+ 
 module.exports = HashObjectCommand;
