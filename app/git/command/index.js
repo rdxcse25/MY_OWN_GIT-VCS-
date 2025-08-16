@@ -5,6 +5,7 @@ const WriteTreeCommand = require("./write-tree.js");
 const CommitTreeCommand = require("./commit-tree.js");
 const AddCommand = require("./add.js");
 const CommitCommand = require("./commit.js");
+const StatusCommand = require("./status.js");
 
 
 module.exports = {
@@ -15,4 +16,5 @@ module.exports = {
     CommitTreeCommand,
     AddCommand,
     CommitCommand,
+    StatusCommand,
 }

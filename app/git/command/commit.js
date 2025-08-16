@@ -1,55 +1,41 @@
 const fs = require("fs");
 const path = require("path");
-const WriteTreeCommand = require("./write-tree.js");
-const CommitTreeCommand = require("./commit-tree.js");
+const crypto = require("crypto");
 
 class CommitCommand {
     constructor(message) {
         this.message = message;
-        this.gitDir = path.join(process.cwd(), ".git-ritu");
-        this.indexPath = path.join(this.gitDir, "index");
-        this.headPath = path.join(this.gitDir, "HEAD");
     }
 
     execute() {
-        // Step 1: Ensure something is staged
-        if (!fs.existsSync(this.indexPath)) {
-            throw new Error("nothing to commit, working tree clean");
+        const indexPath = path.join(".git-ritu", "index");
+        if (!fs.existsSync(indexPath)) {
+            console.log("Nothing to commit, index is empty.");
+            return;
         }
 
-        // Step 2: write-tree to get a tree hash
-        const writeTree = new WriteTreeCommand();
-        let treeHash = "";
-        const oldWrite = process.stdout.write;
-        process.stdout.write = (str) => { treeHash = str.trim(); };
-        writeTree.execute();
-        process.stdout.write = oldWrite;
+        let index = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
 
-        if (!treeHash) {
-            throw new Error("failed to write tree");
+        const stagedFiles = index.files.filter(f => f.stagedHash && f.stagedHash !== f.committedHash);
+        if (stagedFiles.length === 0) {
+            console.log("nothing to commit");
+            return;
         }
 
-        // Step 3: get parent commit if exists
-        let parentHash = null;
-        if (fs.existsSync(this.headPath)) {
-            parentHash = fs.readFileSync(this.headPath, "utf-8").trim();
-        }
+        // Update committedHash for staged files
+        stagedFiles.forEach(f => f.committedHash = f.stagedHash);
 
-        // Step 4: call commit-tree plumbing command
-        const commitArgs = [treeHash];
-        if (parentHash) commitArgs.push("-p", parentHash);
-        commitArgs.push("-m", this.message);
+        // Save commit object
+        const commit = { message: this.message, timestamp: new Date().toISOString(), files: stagedFiles };
+        const commitHash = crypto.createHash('sha1').update(JSON.stringify(commit)).digest('hex');
+        const objectsDir = path.join(".git-ritu", "objects");
+        if (!fs.existsSync(objectsDir)) fs.mkdirSync(objectsDir, { recursive: true });
+        fs.writeFileSync(path.join(objectsDir, commitHash), JSON.stringify(commit, null, 2));
 
-        const commitTree = new CommitTreeCommand(...commitArgs);
-        let commitHash = "";
-        process.stdout.write = (str) => { commitHash = str.trim(); };
-        commitTree.execute();
-        process.stdout.write = oldWrite;
+        fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
 
-        // Step 5: update HEAD
-        fs.writeFileSync(this.headPath, commitHash);
-
-        console.log(`[master (root-commit) ${commitHash}] ${this.message}`);
+        console.log(`[master ${commitHash.slice(0,7)}] ${this.message}`);
+        console.log(`${stagedFiles.length} files committed`);
     }
 }
 

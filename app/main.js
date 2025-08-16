@@ -5,7 +5,7 @@ const GitClient = require("./git/client.js");
 const gitClient = new GitClient();
 
 //commands
-const { CatFileCommand, HashObjectCommand, LsTreeCommand, WriteTreeCommand, CommitTreeCommand, AddCommand, CommitCommand } = require("./git/command");
+const { CatFileCommand, HashObjectCommand, LsTreeCommand, WriteTreeCommand, CommitTreeCommand, AddCommand, CommitCommand, StatusCommand } = require("./git/command");
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 
@@ -39,6 +39,10 @@ switch (command) {
     
     case "commit":
         handleCommitCommand();
+        break;
+
+    case "status":
+        handleStatusCommand();
         break;
 
     default:
@@ -113,4 +117,9 @@ function handleCommitCommand() {
     const commitMessage = process.argv[4];
     const commandCommit = new CommitCommand(commitMessage);
     gitClient.run(commandCommit);
+}
+
+function handleStatusCommand() {
+    const commandStatus = new StatusCommand();
+    gitClient.run(commandStatus);
 }

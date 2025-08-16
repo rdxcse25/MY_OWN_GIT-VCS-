@@ -1,4 +1,3 @@
-// app/commands/AddCommand.js
 const fs = require("fs");
 const path = require("path");
 const HashObjectCommand = require("./hash-object.js");
@@ -16,7 +15,6 @@ class AddCommand {
             throw new Error(`fatal: pathspec '${this.filePath}' did not match any files`);
         }
 
-        // Run hash-object -w to create blob
         const hashObject = new HashObjectCommand("-w", filePath);
         let hash = "";
         const oldWrite = process.stdout.write;
@@ -24,7 +22,6 @@ class AddCommand {
         hashObject.execute();
         process.stdout.write = oldWrite;
 
-        // Collect file metadata for index entry
         const stat = fs.statSync(filePath);
         const entry = {
             ctime: Math.floor(stat.ctimeMs / 1000),
@@ -37,36 +34,29 @@ class AddCommand {
             fileSize: stat.size,
             sha1: hash,
             path: path.relative(process.cwd(), filePath),
+            stagedHash: hash,
+            committedHash: null
         };
 
-        // Load index
         let index = { files: [] };
-        if (fs.existsSync(this.indexPath)) {
-            index = JSON.parse(fs.readFileSync(this.indexPath, "utf-8"));
-        }
+        if (fs.existsSync(this.indexPath)) index = JSON.parse(fs.readFileSync(this.indexPath, "utf-8"));
         if (!index.files) index.files = [];
 
-        // Check if file already exists in index
         const existing = index.files.find(f => f.path === entry.path);
-
         if (existing) {
-            if (existing.sha1 === entry.sha1) {
+            if (existing.stagedHash === entry.stagedHash) {
                 console.log(`no changes in ${entry.path}, skipping`);
                 return;
-            } else {
-                // Update entry
-                Object.assign(existing, entry);
-                console.log(`updated ${entry.path} (sha1: ${entry.sha1})`);
             }
+            Object.assign(existing, entry);
+            console.log(`updated ${entry.path} (sha1: ${entry.stagedHash})`);
         } else {
-            // Add new entry
             index.files.push(entry);
-            console.log(`added ${entry.path} (sha1: ${entry.sha1})`);
+            console.log(`added ${entry.path} (sha1: ${entry.stagedHash})`);
         }
 
-        // Save updated index
         fs.writeFileSync(this.indexPath, JSON.stringify(index, null, 2));
     }
 }
 
-module.exports = AddCommand;     
+module.exports = AddCommand;
