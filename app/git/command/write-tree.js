@@ -12,7 +12,7 @@ function writeFileBlob(currentPath) {
     const hash = crypto.createHash("sha1").update(blob).digest("hex");
     const folder = hash.slice(0, 2);
     const file = hash.slice(2);
-    const completeFolderPath = path.join(process.cwd(), ".git", "objects", folder);
+    const completeFolderPath = path.join(process.cwd(), ".git-ritu", "objects", folder);
     if (!fs.existsSync(completeFolderPath)) {
         fs.mkdirSync(completeFolderPath);
     }
@@ -31,7 +31,7 @@ class WriteTreeCommand {
             const dirContents = fs.readdirSync(basePath);
             const result = [];
             for (const dirContent of dirContents) {
-                if (dirContent.includes(".git")) continue;
+                if (dirContent.includes(".git-ritu")) continue;
                 const currentPath = path.join(basePath, dirContent);
                 const stat = fs.statSync(currentPath);
                 if (stat.isDirectory()) {
@@ -71,7 +71,7 @@ class WriteTreeCommand {
             const hash = crypto.createHash("sha1").update(tree).digest("hex");
             const folder = hash.slice(0, 2);
             const file = hash.slice(2);
-            const treeFolderPath = path.join(process.cwd(), ".git", "objects", folder);
+            const treeFolderPath = path.join(process.cwd(), ".git-ritu", "objects", folder);
             if (!fs.existsSync(treeFolderPath)) {
                 fs.mkdirSync(treeFolderPath);
             }
@@ -83,7 +83,7 @@ class WriteTreeCommand {
         const sha = recursiveCreateTree(process.cwd());
 
         //2. if item is dir do it recursively again for inner dir
-        //3. if file, create a blob, hash it and store it in .git/objects and write the entry to tree
+        //3. if file, create a blob, hash it and store it in .git-ritu/objects and write the entry to tree
         process.stdout.write(sha + '\n');
 
     }

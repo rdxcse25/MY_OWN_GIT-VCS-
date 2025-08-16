@@ -15,7 +15,7 @@ class CatFileCommand {
             case "-p": {
                 const folder = commitSHA.slice(0, 2);
                 const file = commitSHA.slice(2);
-                const completePath = path.join(process.cwd(), ".git", "objects", folder, file);
+                const completePath = path.join(process.cwd(), ".git-ritu", "objects", folder, file);
 
                 if (!fs.existsSync(completePath)) {
                     throw new Error(`Not a valid object name ${commitSHA}`);

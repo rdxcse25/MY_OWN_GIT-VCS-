@@ -13,7 +13,7 @@ class LSTreeCommand {
         const sha = this.sha;
         const folder = sha.slice(0, 2);
         const file = sha.slice(2);
-        const folderPath = path.join(process.cwd(), ".git", "objects", folder);
+        const folderPath = path.join(process.cwd(), ".git-ritu", "objects", folder);
         const filePath = path.join(folderPath, file);
         if (!fs.existsSync(folderPath)) {
             throw new Error(`Not a valid object name ${sha}`);
@@ -47,7 +47,7 @@ class LSTreeCommand {
                 const sha_child = outputBuffer.slice(i, i + 20).toString('hex');
                 i += 20;
                 mode = mode.padStart(6, '0');
-                const type = mode.startsWith("40000") ? "tree" : "blob";
+                const type = mode.startsWith("040000") ? "tree" : "blob";
                 process.stdout.write(`${mode} ${type} ${sha_child}    ${name}\n`);
             }
 

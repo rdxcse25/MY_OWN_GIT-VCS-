@@ -38,11 +38,15 @@ switch (command) {
 }
 
 function createGitDirectory() {
-    fs.mkdirSync(path.join(process.cwd(), ".git"), { recursive: true });
-    fs.mkdirSync(path.join(process.cwd(), ".git", "objects"), { recursive: true });
-    fs.mkdirSync(path.join(process.cwd(), ".git", "refs"), { recursive: true });
-
-    fs.writeFileSync(path.join(process.cwd(), ".git", "HEAD"), "ref: refs/heads/main\n");
+    const gitDir = path.join(process.cwd(), ".git-ritu");
+    fs.mkdirSync(path.join(gitDir, "objects"), { recursive: true });
+    fs.mkdirSync(path.join(gitDir, "refs", "heads"), { recursive: true });
+    // Create HEAD pointing to main
+    fs.writeFileSync(path.join(gitDir, "HEAD"), "ref: refs/heads/main\n");
+    // Create empty main branch file
+    fs.writeFileSync(path.join(gitDir, "refs", "heads", "main"), "");
+    // Create staging area
+    fs.writeFileSync(path.join(gitDir, "index"), JSON.stringify({ files: [] }, null, 2));
     console.log("Initialized git directory");
 }
 
@@ -67,11 +71,11 @@ function handleHashObjectCommand() {
 function handleLsTreeCommand() {
     let flag = process.argv[3];
     let sha = process.argv[4];
-    if(!sha && flag === "--name-only")return;
+    if (!sha && flag === "--name-only") return;
     if (!sha) {
         sha = flag;
         flag = null;
-    }  
+    }
     const commandLsTree = new LsTreeCommand(flag, sha);
     gitClient.run(commandLsTree);
 }
