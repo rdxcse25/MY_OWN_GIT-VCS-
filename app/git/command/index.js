@@ -3,6 +3,8 @@ const HashObjectCommand = require("./hash-object.js");
 const LsTreeCommand = require("./ls-tree.js");
 const WriteTreeCommand = require("./write-tree.js");
 const CommitTreeCommand = require("./commit-tree.js");
+const AddCommand = require("./add.js");
+const CommitCommand = require("./commit.js");
 
 
 module.exports = {
@@ -11,4 +13,6 @@ module.exports = {
     LsTreeCommand,
     WriteTreeCommand,
     CommitTreeCommand,
+    AddCommand,
+    CommitCommand,
 }

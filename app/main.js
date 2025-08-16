@@ -5,7 +5,7 @@ const GitClient = require("./git/client.js");
 const gitClient = new GitClient();
 
 //commands
-const { CatFileCommand, HashObjectCommand, LsTreeCommand, WriteTreeCommand, CommitTreeCommand } = require("./git/command");
+const { CatFileCommand, HashObjectCommand, LsTreeCommand, WriteTreeCommand, CommitTreeCommand, AddCommand, CommitCommand } = require("./git/command");
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 
@@ -31,6 +31,14 @@ switch (command) {
 
     case "commit-tree":
         handleCommitTreeCommand();
+        break;
+
+    case "add":
+        handleAddCommand();
+        break;
+    
+    case "commit":
+        handleCommitCommand();
         break;
 
     default:
@@ -93,4 +101,16 @@ function handleCommitTreeCommand() {
 
     const commandCommitTree = new CommitTreeCommand(tree, commitSHA, commitMessage);
     gitClient.run(commandCommitTree);
+}
+
+function handleAddCommand() {
+    const filePath = process.argv[3];
+    const commandAdd = new AddCommand(filePath);
+    gitClient.run(commandAdd);
+}
+
+function handleCommitCommand() {
+    const commitMessage = process.argv[4];
+    const commandCommit = new CommitCommand(commitMessage);
+    gitClient.run(commandCommit);
 }
